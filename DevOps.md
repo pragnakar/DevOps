@@ -1,243 +1,190 @@
-# DevOps Meta Prompt
+# DevOps
 
-## Operational Protocol for AI-Assisted Systems
+## A Meta-Prompt for Runtime Operations, Observability, and System Reliability
 
----
-
-## Purpose
-
-This document defines a **DevOps meta prompt** that establishes the operational environment and practices required to ensure that software systems **run reliably, securely, and observably in production**.
-
-While other meta prompts govern how software is **designed and built**, and how it is **packaged and deployed**, the DevOps meta prompt governs how systems are **operated, monitored, and maintained after deployment**.
-
-DevOps focuses on **runtime reliability and operational visibility**, rather than application logic or feature development.
-
-Its primary responsibility is to ensure that systems remain **available, observable, secure, and recoverable** in real-world environments.
+**Version:** 1.0
+**Repository:** https://github.com/pragnakar/DevOps
+**Parent Meta-Prompt:** LLM-Native Software Engineering — https://github.com/pragnakar/LLM_NATIVE_SOFTWARE_ENGINEERING
+**Companion Meta-Prompts:** Deployment Engineering, Database, UI-UX
 
 ---
 
-## Role in the Meta-Prompt Ecosystem
+## Thesis
 
-The DevOps meta prompt operates as a later stage in the broader AI-assisted development lifecycle.
+Building and deploying software is the beginning, not the end. Production systems degrade, fail, and behave unexpectedly under real load. DevOps ensures that when failures occur, they are detected immediately, impact is minimized, and root causes are understood. This meta-prompt shifts focus from construction to sustained operation — keeping systems observable, reliable, and recoverable throughout their operational lifecycle.
 
-```text
-Architecture / Intent
-        ↓
-LLM-Native Software Engineering
-(Build protocol)
+## When This Meta-Prompt Is Invoked
 
-        ↓
-Deployment Engineering
-(Environment & infrastructure)
+Invoke this meta-prompt when:
+- A system is approaching production deployment or has entered production
+- Monitoring, alerting, or on-call procedures need to be established or reviewed
+- An incident has occurred and operational processes need to be assessed
+- SLOs, SLIs, or error budgets need to be defined
+- Operational runbooks need to be written or updated
+- A post-mortem process needs to be established
 
-        ↓
-DevOps
-(Runtime operations and monitoring)
-```
+## Scope
 
-Each layer focuses on a distinct concern:
+**This meta-prompt covers:**
+- Monitoring system health and performance: metrics, dashboards, SLOs/SLIs
+- Log collection, aggregation, analysis, and anomaly detection
+- Alerting: thresholds, routing, escalation policies
+- Incident detection, response, and post-mortem processes
+- Reliability engineering: redundancy, failover, graceful degradation, error budgets
+- On-call processes, runbooks, and operational documentation
+- Runtime security operations: access auditing, secret rotation, vulnerability monitoring
 
-| Layer                           | Focus                                     |
-| ------------------------------- | ----------------------------------------- |
-| LLM-Native Software Engineering | Architecture and software construction    |
-| Deployment Engineering          | Infrastructure and runtime environment    |
-| DevOps                          | Operational reliability and system health |
+**This meta-prompt does NOT cover:**
+- Provisioning infrastructure or defining deployment pipelines — handled by **Deployment Engineering**
+- Database schema design or migration — handled by the **Database** meta-prompt
+- Application architecture and build workflow — handled by **LLM-Native Software Engineering**
+- User interface design — handled by the **UI-UX** meta-prompt
 
-The DevOps meta prompt may be **invoked once systems are deployed or approaching production readiness**.
+## Principles
 
----
+1. **Failures are inevitable; undetected failures are not acceptable.** Every production system will fail. The only question is how quickly the failure is detected and how much user impact occurs before recovery. Detection speed is the primary reliability lever.
 
-## Core Philosophy
+2. **Observability is designed in, not bolted on.** Systems emit structured logs, metrics, and traces by design — not retrofitted after the first production incident reveals a gap. If the data isn't there when you need it, you cannot get it after the fact.
 
-DevOps shifts the focus from **building systems** to **keeping systems running**.
+3. **Every alert must be actionable.** An alert without a defined response action is noise. Alerts that fire and require no action are eliminated or downgraded. Alert fatigue kills on-call effectiveness.
 
-This includes:
+4. **SLOs define the acceptable degradation boundary.** Service Level Objectives are set before production launch and drive alert thresholds. Error budgets determine whether new feature work or reliability investment takes priority at any given time.
 
-* observing runtime behavior
-* identifying failures and anomalies
-* ensuring service availability
-* maintaining operational visibility
-* enabling secure access to operational tools
+5. **Runbooks exist before incidents occur.** Every P1 and P2 alert has a corresponding runbook. If an incident requires improvisation, a runbook is written before the incident is closed. Improvisation should only happen once.
 
-DevOps practices are therefore centered around **monitoring, automation, and response**.
+6. **Least-privilege access is enforced at the operational layer.** Production access is role-based, audited, and time-limited where possible. Persistent unrestricted access to production systems is not permitted.
 
----
+7. **Post-mortems are blameless and mandatory.** Every severity-1 and severity-2 incident produces a written post-mortem. Root causes are structural or systemic — not personal. The goal is durable fixes, not accountability.
 
-## Operational Responsibilities
+## Practices
 
-The DevOps meta prompt establishes standards and workflows for the following domains.
+### Observability Stack
 
-### Observability
+- Emit structured logs (JSON) from all services. Every log entry includes: timestamp, severity, service name, trace ID, and relevant operational context.
+- Instrument all services with a metrics client (Prometheus, Datadog, CloudWatch). Expose at minimum: request rate, error rate, latency (p50/p95/p99), and resource saturation.
+- Implement distributed tracing (OpenTelemetry) across all service boundaries. Trace IDs propagate through all inter-service calls and are present in logs and metrics.
+- Correlate all three signals: a single trace ID links a metric anomaly to the relevant log entries and traces. Uncorrelated observability data forces manual correlation under pressure.
 
-DevOps systems must provide clear visibility into runtime behavior.
+### SLOs and Error Budgets
 
-Observability typically includes:
-
-* centralized logging
-* metrics collection
-* distributed tracing
-* system health checks
-
-Operational systems should detect abnormal behavior and raise alerts when thresholds are exceeded.
-
-Example signals include:
-
-* service latency spikes
-* error rate increases
-* resource exhaustion
-* dependency failures
-
----
+- Define SLIs (measurable indicators) before production launch. Example: "percentage of HTTP requests returning 2xx within 500ms."
+- Set SLOs (targets) for each SLI. Example: "99.5% of requests complete successfully within 500ms, measured over a rolling 28-day window."
+- Calculate error budget: `error budget = (1 - SLO target) × time window`. When error budget is exhausted, freeze new feature work and prioritize reliability.
+- Review SLO compliance weekly. SLOs never violated should be tightened. SLOs consistently violated require immediate engineering investment.
 
 ### Monitoring and Alerting
 
-Operational monitoring systems must continuously evaluate system health.
-
-Monitoring workflows may include:
-
-* service uptime monitoring
-* log anomaly detection
-* performance threshold alerts
-* infrastructure health monitoring
-
-Alerts should be actionable and routed to appropriate response channels.
-
----
-
-### Access and Operational Tooling
-
-DevOps environments must provide controlled access points for operational tools and maintenance workflows.
-
-Examples include:
-
-* operational dashboards
-* infrastructure control interfaces
-* log analysis tools
-* diagnostic endpoints
-* administrative access controls
-
-Access should follow **least-privilege principles** and be secured through appropriate authentication mechanisms.
-
----
+- Alert on SLO burn rate, not raw metric values. A burn-rate alert fires when error budget is being consumed faster than the SLO window permits — catching both fast burns (p1 alert) and slow burns (p2 alert).
+- Every alert rule includes: name, severity (P1/P2/P3), impact statement, and runbook URL.
+- P1 alerts page on-call immediately. P2 alerts notify within 15 minutes. P3 alerts are tracked in a queue for next business day.
+- Review alert noise monthly. Any alert that fires more than twice without requiring a human response is recalibrated or removed.
+- Dashboards are organized by user journey, not by infrastructure component. An engineer responding to an alert should see user impact first, infrastructure metrics second.
 
 ### Incident Response
 
-DevOps must establish clear procedures for responding to runtime failures.
+- Declare incident severity immediately upon detection. Do not wait to understand full scope before declaring.
+- Assign an incident commander for all P1/P2 incidents. The commander owns communication, not diagnosis.
+- Open a dedicated communication channel (Slack, incident.io, PagerDuty) for every P1 incident.
+- Response time targets: detection-to-acknowledgment within 5 minutes (P1), mitigation within 30 minutes (P1).
+- Rollback is always the first mitigation option evaluated before attempting a forward fix under pressure.
+- Write and publish a post-mortem within 48 hours of P1/P2 incident resolution.
 
-Incident response protocols may include:
+### Reliability Practices
 
-* failure detection
-* alert routing
-* automated mitigation where possible
-* manual escalation procedures
-* post-incident analysis
+- Design for failure: any dependency can fail at any time. Implement timeouts, retries with exponential backoff and jitter, and circuit breakers on all external calls.
+- Implement health endpoints (`/health`, `/ready`) on all services. Load balancers and orchestrators use these for routing and restart decisions.
+- Conduct quarterly failover and chaos experiments to validate that recovery mechanisms function as documented — not just as designed.
+- Document Recovery Time Objective (RTO) and Recovery Point Objective (RPO) for each service. Validate against actual recovery drills, not theoretical estimates.
 
-Operational workflows should prioritize **fast detection and rapid recovery**.
+### Runbooks
 
----
-
-### Reliability and Resilience
-
-Production systems must tolerate failures and continue operating under adverse conditions.
-
-DevOps practices should support:
-
-* redundancy and failover mechanisms
-* automated recovery
-* graceful degradation
-* system restarts and health-based replacement
-
-Resilient systems assume that **failures will occur** and prepare accordingly.
-
----
+- Every alert links to a numbered-step runbook. Runbooks are not prose — they are executable decision trees.
+- Every runbook includes: what the alert means, probable causes, diagnostic commands, mitigation steps, and escalation criteria.
+- Update runbooks every time an incident reveals a gap or inaccuracy. A stale runbook is more dangerous than no runbook — it gives false confidence.
 
 ### Security Operations
 
-DevOps workflows must ensure that runtime environments remain secure.
+- All production access is logged and audited. Access logs are retained for a minimum of 90 days.
+- Privileged access (SSH, `kubectl exec`, database admin queries) is time-limited and approval-gated where infrastructure supports it.
+- Rotate secrets on a defined schedule. Verify rotation by testing with new credentials before revoking old ones.
+- Monitor for anomalous access patterns: off-hours privileged logins, unusual API call volumes, access to sensitive resources outside normal operational patterns.
 
-Operational security includes:
+## Agent Instructions
 
-* access auditing
-* secret management
-* intrusion detection
-* vulnerability monitoring
-* runtime policy enforcement
+When an LLM coding agent is operating under this meta-prompt:
 
-Security monitoring should integrate with observability systems where possible.
+**Do:**
+- Generate structured JSON log statements in all service code, including `service`, `trace_id`, and `severity` fields
+- Include `/health` and `/ready` endpoints in every service scaffold
+- Generate Prometheus metrics middleware (or equivalent) for all HTTP/gRPC services
+- Generate alert rule definitions with severity labels and `runbook_url` annotations
+- Write runbooks as numbered step sequences with diagnostic and mitigation steps clearly separated
+- Generate circuit breaker and retry logic (with exponential backoff) for all external service calls
+- Generate SLO alert rules using multi-window burn rate, not static thresholds
+
+**Do NOT:**
+- Generate alert thresholds based on arbitrary numeric values — alert on SLO burn rate
+- Write runbooks as prose paragraphs — they must be numbered steps executable under incident conditions
+- Generate production access configurations with persistent unrestricted admin roles
+- Skip health endpoint generation for any long-running service
+- Generate observability configurations that do not correlate logs, metrics, and traces via trace ID
+- Define infrastructure or deployment configuration — that is Deployment Engineering's domain
+
+**Verify before proceeding:**
+- Does every service emit structured logs with a `trace_id` field?
+- Does every service expose `/health` and `/ready` endpoints?
+- Does every generated alert rule include a `runbook_url` annotation?
+- Are there circuit breakers or retry policies on all external service calls?
+- Is production access role-based and audited?
+
+## Integration Points
+
+- **LLM-Native Software Engineering:** DevOps operates on systems built via the LLM-Native SE protocol. Verification prompts defined in LLM-Native SE can evolve into CI pipeline stages that also feed operational monitoring. The phase structure and build log inform runbook context and incident scope.
+
+- **Deployment Engineering:** Deployment Engineering provisions the infrastructure; DevOps monitors and operates it. The logging pipelines, metrics collectors, and tracing agents provisioned by Deployment Engineering are the data sources DevOps consumes. Deployment Engineering defines the rollback mechanism; DevOps defines the SLO burn-rate condition that triggers it.
+
+- **Database:** DevOps monitors database health metrics: query latency, connection pool saturation, replication lag, lock wait time. Database-specific runbooks address query performance degradation, replication failures, and backup validation. Database maintenance windows are coordinated with DevOps on-call to avoid alert noise.
+
+- **UI-UX:** Frontend performance metrics (Core Web Vitals: LCP, FID, CLS) are monitored as part of DevOps observability. User-facing SLOs are defined in terms that align with UX quality standards. Frontend JavaScript errors and failed API calls are tracked in the operational monitoring stack.
+
+## Anti-Patterns
+
+| Anti-Pattern | Why It's Harmful |
+|---|---|
+| Alerting on raw metric values instead of SLO burn rate | Generates noise at safe operating levels and misses slow-burning SLO violations that will exhaust the error budget before triggering |
+| Writing runbooks as prose paragraphs | Engineers reading under incident pressure cannot quickly locate the next action; narrative format increases mean time to recover |
+| Alert fatigue — too many low-signal alerts | On-call engineers begin ignoring or silencing alerts; a real P1 is missed in the noise |
+| Post-mortem blame culture | Engineers hide incidents or delay escalation; structural root causes recur because they are never surfaced |
+| Persistent unrestricted admin access to production | Violates least-privilege; access logs become meaningless; any credential compromise has maximum blast radius |
+| Retrofitting observability after a production incident | The incident that reveals the observability gap is the one you cannot diagnose; structured logging must precede production launch |
+| Manual incident response without runbooks | Response quality and speed vary by who is on-call; institutional knowledge is lost when team members change |
+| Treating SLOs as aspirational targets rather than operational constraints | SLOs without error budget enforcement are metrics that get reported, not acted upon; they have no operational effect |
+
+## Quick-Start Checklist
+
+```
+[ ] Define SLIs for each user-facing service
+[ ] Set SLO targets and calculate error budgets
+[ ] Configure structured JSON logging with trace_id in all services
+[ ] Deploy metrics collection (Prometheus/Datadog/equivalent)
+[ ] Configure distributed tracing (OpenTelemetry)
+[ ] Create dashboards organized by user journey
+[ ] Write SLO burn-rate alert rules with severity labels and runbook URL annotations
+[ ] Configure alert routing (PagerDuty, OpsGenie, or equivalent)
+[ ] Implement /health and /ready endpoints on all services
+[ ] Write runbooks for every P1/P2 alert (numbered steps, not prose)
+[ ] Define incident severity levels and response SLAs
+[ ] Assign on-call rotation and escalation paths
+[ ] Establish post-mortem process and template
+[ ] Schedule quarterly failover and chaos drills
+[ ] Configure production access as role-based and audited
+[ ] Verify all three signals (logs, metrics, traces) are correlated via trace ID
+```
+
+## Version History
+
+- v1.0 — 2026-03-06 — Initial harmonization: full restructure to canonical meta-prompt template, added Principles, Practices, Agent Instructions, Integration Points, Anti-Patterns, and Quick-Start Checklist
 
 ---
 
-## Automation and Infrastructure Integration
-
-DevOps processes should favor **automation over manual intervention**.
-
-Operational automation may include:
-
-* automated log aggregation
-* dynamic scaling
-* automated service restarts
-* deployment rollbacks
-* infrastructure health remediation
-
-Automation reduces operational risk and increases system reliability.
-
----
-
-## Repository Purpose
-
-This repository will evolve into a structured framework for **DevOps meta prompts and operational standards**.
-
-Over time it may include:
-
-* observability architecture patterns
-* monitoring and alerting templates
-* operational playbooks
-* incident response workflows
-* infrastructure health validation tools
-* runtime security practices
-
-The goal is to create a **machine-understandable operational protocol** that AI systems and human operators can follow to maintain system reliability.
-
----
-
-## Relationship to AI-Assisted Development
-
-As AI-assisted development becomes more common, operational environments must also support **AI-driven system management**.
-
-The DevOps meta prompt may support:
-
-* AI-assisted log analysis
-* automated anomaly detection
-* operational diagnostics
-* automated remediation workflows
-* system health verification
-
-By defining operational protocols explicitly, AI systems can assist in maintaining system health without compromising reliability.
-
----
-
-## Future Direction
-
-DevOps within the meta-prompt ecosystem may eventually evolve toward **autonomous operational environments**, where monitoring systems automatically detect issues and trigger corrective workflows.
-
-Potential future capabilities include:
-
-* AI-driven operational diagnostics
-* predictive system health analysis
-* automated scaling strategies
-* adaptive monitoring thresholds
-* self-healing infrastructure
-
-These capabilities build upon the same principle that underlies the broader methodology:
-
-**structured protocols enable safe collaboration between humans and intelligent systems.**
-
----
-
-## Guiding Principle
-
-If software engineering focuses on **building systems**, and deployment engineering focuses on **placing those systems into environments**, DevOps focuses on **ensuring that those systems continue to function reliably over time**.
-
-Its mission is simple but critical:
-
-**Keep systems running, visible, and recoverable.**
+*Part of the Meta-Prompt Ecosystem: https://github.com/pragnakar*
