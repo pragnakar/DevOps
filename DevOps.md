@@ -5,7 +5,7 @@
 **Version:** 1.0
 **Repository:** https://github.com/pragnakar/DevOps
 **Parent Meta-Prompt:** LLM-Native Software Engineering — https://github.com/pragnakar/LLM_NATIVE_SOFTWARE_ENGINEERING
-**Companion Meta-Prompts:** Deployment Engineering, Database, UI-UX
+**Companion Meta-Prompts:** Deployment Engineering, Database, UI-UX, Security Engineering, MLOps, API Design, Testing Strategy, Documentation, Scrum
 
 ---
 
@@ -146,6 +146,18 @@ When an LLM coding agent is operating under this meta-prompt:
 - **Database:** DevOps monitors database health metrics: query latency, connection pool saturation, replication lag, lock wait time. Database-specific runbooks address query performance degradation, replication failures, and backup validation. Database maintenance windows are coordinated with DevOps on-call to avoid alert noise.
 
 - **UI-UX:** Frontend performance metrics (Core Web Vitals: LCP, FID, CLS) are monitored as part of DevOps observability. User-facing SLOs are defined in terms that align with UX quality standards. Frontend JavaScript errors and failed API calls are tracked in the operational monitoring stack.
+
+- **Security Engineering:** DevOps monitors security-relevant operational signals: anomalous access patterns, failed authentication spikes, and unusual API call volumes. Security incident response follows DevOps incident management processes using security-specific runbooks. Security logging feeds into DevOps observability pipelines.
+
+- **MLOps:** Model serving health metrics (inference latency, prediction error rate, throughput) feed into DevOps observability alongside application metrics. MLOps-specific monitoring (data drift, model degradation) extends DevOps with ML-specific signals and runbooks. Model serving outages are handled through standard DevOps incident response.
+
+- **API Design:** API health metrics (request rate, error rate, latency by endpoint, rate limit exhaustion) are monitored as part of DevOps observability. SLOs are defined at the API endpoint level. Circuit breaker and retry behavior produce operational signals that inform runbooks.
+
+- **Testing Strategy:** Production monitoring validates what testing predicts. SLO violations in production indicate test coverage gaps. Chaos experiments and resilience testing (DevOps domain) are coordinated with Testing Strategy's overall test plan. Performance test baselines inform DevOps alerting thresholds.
+
+- **Documentation:** Operational runbooks follow Documentation meta-prompt standards: numbered steps, not prose. Documentation meta-prompt defines runbook structure; this meta-prompt owns the operational content (alert meanings, diagnostic commands, escalation criteria).
+
+- **Scrum:** Operational issues, postmortem action items, and reliability improvements are tracked as backlog items in Scrum. Error budget burn reports inform sprint planning decisions — when error budget is low, reliability work takes priority over feature delivery. Incident retrospectives feed into sprint retrospectives.
 
 ## Anti-Patterns
 
